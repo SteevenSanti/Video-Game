@@ -44,7 +44,8 @@ button:not(:last-child){
 p{
     display:block;
     margin:0;
-    width:100%
+    width:100%;
+    text-align: center; 
 }
 @media(max-width:440px){
     button{

@@ -7,7 +7,9 @@ const right = document.getElementById("right");
 let leveltoplay = 0; 
 let moveVertical=1;
 let moveHorizontal=1;
+let lives = 3;
 const playerPosition = {};
+const numberLives =document.getElementById("numbeLive");
 
 window.addEventListener("load",setCanvasSize);
 window.addEventListener("resize",setCanvasSize);
@@ -85,6 +87,7 @@ function renderMap(level){
     game.clearRect(0,0,canvas.width,canvas.height);
     const  filterMap = maps[level].trim().split("\n");
     const maprender = filterMap.map(function(key){ return key.trim().split("")});
+    numberLives.innerText = "Vidas Sobrantes: \t"+String(lives);
     mapObjetcs(maprender);
     
 }
@@ -157,7 +160,7 @@ function mapObjetcs(maprender){
 }
 
 function mapPlayer(elementSize,maprender){
-    const valuegif= [];
+    
     for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
            
@@ -178,37 +181,40 @@ function mapPlayer(elementSize,maprender){
                 game.fillText(emojis['PLAYER'] ,elementSize * playerPosition.x , elementSize * playerPosition.y);
                 
         
-            }
-            if(maprender[j][i]=='I'){
-                valuegif.push(i+1);
-                valuegif.push(j+1);                
-                
-            }
-            
+            }          
                  
         }
         
     }
-    console.log({valuegif,playerPosition});
+    console.log({playerPosition});
     if(maprender[playerPosition.y-1][playerPosition.x-1] == "X"){
-        
-        // game.fillText(emojis['PLAYER'] ,elementSize * moveHorizontal , elementSize * moveVertical);
-        setTimeout(() =>{yourDie()},200);
+        lives--;
+        if(lives<1){
+            leveltoplay=0;
+            setTimeout(() => {
+                window.alert("Perdistes Todas las vidas");
+                yourDie();
+            }, 50);
+            lives=3;
+        }
+        setTimeout(() =>{window.confirm("Moriste");
+        yourDie();},200);
         
     }
-    if((valuegif[1])==playerPosition.y && (valuegif[0])==playerPosition.x){
+    if(maprender[playerPosition.y-1][playerPosition.x-1] == "I"){
         leveltoplay++;
-        if(leveltoplay>2){leveltoplay=0;}
-        startGame();
+        if(leveltoplay>(maps.length-1)){leveltoplay=0;}
+        setTimeout(() => {
+            window.alert("Juego finalizado");
+            yourDie();
+        }, 200);
+        
     }
     
-    
-    
-
-    
+        
 }
 function yourDie(){
-    window.confirm("Moriste");
+    
     playerPosition.x = undefined;
     playerPosition.y = undefined;
     startGame();
