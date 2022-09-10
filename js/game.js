@@ -87,7 +87,7 @@ function renderMap(level){
     game.clearRect(0,0,canvas.width,canvas.height);
     const  filterMap = maps[level].trim().split("\n");
     const maprender = filterMap.map(function(key){ return key.trim().split("")});
-    numberLives.innerText = "Vidas Sobrantes: \t"+String(lives);
+    numberLives.innerText = "Vidas Sobrantes: \t"+String(numberHearts());
     mapObjetcs(maprender);
     
 }
@@ -194,8 +194,9 @@ function mapPlayer(elementSize,maprender){
             setTimeout(() => {
                 window.alert("Perdistes Todas las vidas");
                 yourDie();
+                lives=3;
             }, 50);
-            lives=3;
+            
         }
         setTimeout(() =>{window.confirm("Moriste");
         yourDie();},200);
@@ -203,11 +204,22 @@ function mapPlayer(elementSize,maprender){
     }
     if(maprender[playerPosition.y-1][playerPosition.x-1] == "I"){
         leveltoplay++;
-        if(leveltoplay>(maps.length-1)){leveltoplay=0;}
-        setTimeout(() => {
-            window.alert("Juego finalizado");
-            yourDie();
-        }, 200);
+        if(leveltoplay>(maps.length-1)){
+            leveltoplay=0;
+            lives = 3;
+            setTimeout(() => {
+                window.alert("Juego finalizado");
+                yourDie();
+            }, 50);
+        }else{
+
+        
+            setTimeout(() => {
+                window.alert("Nivel superado");
+                yourDie();
+            }, 50);
+        }
+       
         
     }
     
@@ -218,5 +230,13 @@ function yourDie(){
     playerPosition.x = undefined;
     playerPosition.y = undefined;
     startGame();
+}
+function numberHearts(){
+    let hearts="";
+    for(let i=0; i< lives ; i++ ){
+        hearts = hearts + emojis["HEART"];
+    }
+    return hearts;
+    
 }
 //console.log(renderMap(0));
