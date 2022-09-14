@@ -9,7 +9,12 @@ let moveVertical=1;
 let moveHorizontal=1;
 let lives = 3;
 const playerPosition = {};
-const numberLives =document.getElementById("numbeLive");
+const numberLives = document.getElementById("numbeLive");
+const numberTime = document.getElementById("numbeTime");
+
+let timeStart;
+let timeIntervalue;
+let timeEnd;
 
 window.addEventListener("load",setCanvasSize);
 window.addEventListener("resize",setCanvasSize);
@@ -31,7 +36,7 @@ function setCanvasSize(){
         canvassize = window.innerWidth*0.60;
         
     }  
-    
+    canvassize.toFixed(20);
     canvas.setAttribute("width", canvassize);
     canvas.setAttribute("height", canvassize);
     startGame();
@@ -78,6 +83,11 @@ function startGame(){
     game.textAlign = "end";
     game.textBaseline = "bottom"; // align text en forma vertical 'top', 'hanging', 'middle', 'alphabetic', 'ideographic', 'bottom'
     game.font = String (elementSize -10) + "px Arial" ;
+    if(!timeStart){
+        timeStart = Date.now();
+        timeIntervalue = setInterval(showTime,100);
+    }
+    numberHearts();
     renderMap(leveltoplay);
     
 
@@ -87,7 +97,7 @@ function renderMap(level){
     game.clearRect(0,0,canvas.width,canvas.height);
     const  filterMap = maps[level].trim().split("\n");
     const maprender = filterMap.map(function(key){ return key.trim().split("")});
-    numberLives.innerText = "Vidas Sobrantes: \t"+String(numberHearts());
+    numberHearts();
     mapObjetcs(maprender);
     
 }
@@ -191,24 +201,30 @@ function mapPlayer(elementSize,maprender){
         lives--;
         if(lives<1){
             leveltoplay=0;
+            clearInterval(timeIntervalue)
+            timeStart = undefined;
             setTimeout(() => {
                 window.alert("Perdistes Todas las vidas");
+                localStorage.setItem("Data", timeEnd);
                 yourDie();
-                lives=3;
+                lives=3;    
+                numberHearts();
             }, 50);
             
+        }else{
+            setTimeout(() =>{window.confirm("Moriste");
+            yourDie();},200);
         }
-        setTimeout(() =>{window.confirm("Moriste");
-        yourDie();},200);
+        
         
     }
     if(maprender[playerPosition.y-1][playerPosition.x-1] == "I"){
         leveltoplay++;
         if(leveltoplay>(maps.length-1)){
-            leveltoplay=0;
-            lives = 3;
+            finishGame();
             setTimeout(() => {
                 window.alert("Juego finalizado");
+                
                 yourDie();
             }, 50);
         }else{
@@ -236,7 +252,40 @@ function numberHearts(){
     for(let i=0; i< lives ; i++ ){
         hearts = hearts + emojis["HEART"];
     }
-    return hearts;
+    numberLives.innerText = "Vidas Sobrantes: \t"+String(hearts);
     
+    
+}
+    let timeMin=0;
+    let timeHours=0;
+    let timeSeconds=0;
+function showTime(){
+     
+    timeEnd =Math.floor((Date.now()- timeStart)/(1000));
+    
+    timeSeconds=timeEnd%60;
+    timeMin=Math.floor((timeEnd/60))%60;
+    timeHours=Math.floor((timeEnd/60)/60)%24;
+    numberTime.innerText = String(timeHours)+ ":"+String(timeMin)+":"+String(timeSeconds)+":"+ String(timeEnd);
+}
+function finishGame(){
+    leveltoplay=0;
+    lives = 3;
+    const recorTime = localStorage.getItem("time-game");
+    if(!recorTime){
+        localStorage.setItem("time-game", timeEnd);
+    }else{
+        const newTime = timeEnd;
+        if(recorTime >= newTime){
+            localStorage.setItem("time-game", newTime);
+            window.alert("Nuevo Record"+String(newTime));
+
+        }else{
+            window.alert("Logro anterior: "+String(recorTime));
+        }
+    }
+    
+    clearInterval(timeIntervalue);
+    timeStart = undefined;
 }
 //console.log(renderMap(0));
